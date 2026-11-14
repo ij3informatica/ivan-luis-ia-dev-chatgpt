@@ -1,4 +1,5 @@
 const STORAGE_KEY = "serviceDeskTickets";
+const ticketCategories = ["Hardware", "Software", "Rede", "Acesso", "Outro"];
 
 const seedTickets = [
   {
@@ -205,6 +206,12 @@ function renderTicketDetails() {
           <option ${ticket.priority === "Crítica" ? "selected" : ""}>Crítica</option>
         </select>
       </label>
+      <label>
+        Categoria
+        <select id="detailCategory">
+          ${ticketCategories.map((category) => `<option ${ticket.category === category ? "selected" : ""}>${category}</option>`).join("")}
+        </select>
+      </label>
     </div>
 
     <label>
@@ -239,6 +246,7 @@ function updateSelectedTicket(ticketId) {
 
   const newStatus = document.querySelector("#detailStatus").value;
   const newPriority = document.querySelector("#detailPriority").value;
+  const newCategory = document.querySelector("#detailCategory").value;
   const newCorrection = document.querySelector("#detailCorrection").value.trim();
   const eventList = [];
 
@@ -250,12 +258,17 @@ function updateSelectedTicket(ticketId) {
     eventList.push(`Prioridade alterada de ${ticket.priority} para ${newPriority}.`);
   }
 
+  if (ticket.category !== newCategory) {
+    eventList.push(`Categoria alterada de ${ticket.category} para ${newCategory}.`);
+  }
+
   if (ticket.correction !== newCorrection && newCorrection) {
     eventList.push(`Correção registrada: ${newCorrection}`);
   }
 
   ticket.status = newStatus;
   ticket.priority = newPriority;
+  ticket.category = newCategory;
   ticket.correction = newCorrection;
   ticket.updatedAt = new Date().toISOString();
   ticket.events = ticket.events.concat(eventList);
