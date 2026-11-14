@@ -98,6 +98,17 @@
             <strong>Fila de atendimento</strong>
             <span id="ticketCounter">0 chamados</span>
           </div>
+          <label class="status-filter">
+            Status do chamado
+            <select id="queueStatusFilter">
+              <option value="active">Não resolvidos</option>
+              <option value="all">Todos os status</option>
+              <option>Aberto</option>
+              <option>Em atendimento</option>
+              <option>Aguardando usuário</option>
+              <option>Resolvido</option>
+            </select>
+          </label>
           <div id="ticketList"></div>
         </aside>
 

@@ -85,6 +85,7 @@ const knowledgeSuggestions = document.querySelector("#knowledgeSuggestions");
 const ticketList = document.querySelector("#ticketList");
 const ticketDetails = document.querySelector("#ticketDetails");
 const ticketCounter = document.querySelector("#ticketCounter");
+const queueStatusFilter = document.querySelector("#queueStatusFilter");
 const historyTable = document.querySelector("#historyTable");
 const searchInput = document.querySelector("#searchInput");
 const clearData = document.querySelector("#clearData");
@@ -129,6 +130,7 @@ ticketForm.addEventListener("submit", (event) => {
 });
 
 searchInput.addEventListener("input", renderTicketList);
+queueStatusFilter.addEventListener("change", render);
 
 ["#title", "#description"].forEach((selector) => {
   document.querySelector(selector).addEventListener("input", renderKnowledgeSuggestions);
@@ -171,9 +173,21 @@ function nextId() {
 }
 
 function render() {
+  const selectedTicket = tickets.find((ticket) => ticket.id === selectedTicketId);
+  if (selectedTicket && !matchesQueueStatus(selectedTicket)) {
+    selectedTicketId = null;
+  }
+
   renderTicketList();
   renderTicketDetails();
   renderHistory();
+}
+
+function matchesQueueStatus(ticket) {
+  const selectedStatus = queueStatusFilter.value;
+  if (selectedStatus === "active") return ticket.status !== "Resolvido";
+  if (selectedStatus === "all") return true;
+  return ticket.status === selectedStatus;
 }
 
 function renderKnowledgeSuggestions() {
@@ -218,8 +232,11 @@ function renderTicketList() {
   const term = searchInput.value.trim().toLowerCase();
   const filteredTickets = tickets.filter((ticket) => {
     return (
-      String(ticket.id).includes(term) ||
-      ticket.title.toLowerCase().includes(term)
+      matchesQueueStatus(ticket) &&
+      (
+        String(ticket.id).includes(term) ||
+        ticket.title.toLowerCase().includes(term)
+      )
     );
   });
 

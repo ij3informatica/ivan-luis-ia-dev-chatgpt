@@ -230,6 +230,11 @@ textarea {
   border-bottom: 1px solid var(--line);
 }
 
+.status-filter {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
 #ticketCounter {
   color: var(--muted);
   font-size: 13px;
