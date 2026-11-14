@@ -217,6 +217,13 @@ textarea {
   width: min(360px, 100%);
 }
 
+.history-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
 .ticket-list {
   overflow: hidden;
 }
@@ -409,7 +416,8 @@ th {
 
   .support-layout,
   .field-grid,
-  .details-grid {
+  .details-grid,
+  .history-filters {
     grid-template-columns: 1fr;
   }
 }

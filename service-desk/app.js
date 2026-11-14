@@ -90,6 +90,8 @@ const historyTable = document.querySelector("#historyTable");
 const searchInput = document.querySelector("#searchInput");
 const clearData = document.querySelector("#clearData");
 const toast = document.querySelector("#toast");
+const historySearchInput = document.querySelector("#historySearchInput");
+const historyCategoryFilter = document.querySelector("#historyCategoryFilter");
 
 tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
@@ -131,6 +133,8 @@ ticketForm.addEventListener("submit", (event) => {
 
 searchInput.addEventListener("input", renderTicketList);
 queueStatusFilter.addEventListener("change", render);
+historySearchInput.addEventListener("input", renderHistory);
+historyCategoryFilter.addEventListener("change", renderHistory);
 
 ["#title", "#description"].forEach((selector) => {
   document.querySelector(selector).addEventListener("input", renderKnowledgeSuggestions);
@@ -383,7 +387,29 @@ function updateSelectedTicket(ticketId) {
 }
 
 function renderHistory() {
-  historyTable.innerHTML = tickets.map((ticket) => `
+  const term = normalizeText(historySearchInput.value.trim());
+  const category = historyCategoryFilter.value;
+  const filteredTickets = tickets.filter((ticket) => {
+    const matchesCategory = category === "all" || ticket.category === category;
+    const searchableText = [
+      ticket.id,
+      ticket.title,
+      ticket.requester,
+      ticket.email,
+      ticket.status,
+      ticket.priority,
+      ticket.category
+    ].map(normalizeText);
+
+    return matchesCategory && searchableText.some((value) => value.includes(term));
+  });
+
+  if (filteredTickets.length === 0) {
+    historyTable.innerHTML = '<tr><td colspan="6">Nenhum chamado encontrado.</td></tr>';
+    return;
+  }
+
+  historyTable.innerHTML = filteredTickets.map((ticket) => `
     <tr>
       <td>#${ticket.id}</td>
       <td>${escapeHtml(ticket.title)}</td>
