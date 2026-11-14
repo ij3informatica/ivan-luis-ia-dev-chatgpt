@@ -150,6 +150,29 @@ main {
   padding: 22px;
 }
 
+.knowledge-panel {
+  border: 1px solid #b8c8f5;
+  border-radius: 8px;
+  padding: 16px;
+  background: #f3f6ff;
+}
+
+.knowledge-panel article + article {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.knowledge-panel h3 {
+  margin: 8px 0 4px;
+  font-size: 16px;
+}
+
+.knowledge-panel p {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

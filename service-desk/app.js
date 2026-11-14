@@ -37,12 +37,51 @@ const seedTickets = [
   }
 ];
 
+const knowledgeBase = [
+  {
+    title: "Wi-Fi de visitantes",
+    keywords: ["wi-fi de visitantes", "wifi de visitantes", "ij3-visitantes", "portal de boas-vindas"],
+    solution: "No menu de redes, selecione IJ3-Visitantes. Abra o navegador e siga o portal de boas-vindas. Se a rede não aparecer, acione a TI."
+  },
+  {
+    title: "Impressão — impressora já instalada",
+    keywords: ["impressora", "impressão", "imprimir", "página de teste"],
+    solution: "No Windows, abra Configurações > Bluetooth e dispositivos > Impressoras e scanners. Escolha a impressora já instalada e selecione Imprimir página de teste. Se o equipamento estiver offline, acione a TI."
+  },
+  {
+    title: "Telefone IP — sem conexão ou sem linha",
+    keywords: ["telefone ip", "sem linha", "telefone sem conexão", "telefone sem conexao"],
+    solution: "Confira no visor se o ícone de rede indica que o telefone está conectado. Se possível, verifique também se um computador próximo consegue acessar a internet. Para reiniciar o telefone, use a seta para baixo até selecionar Reiniciar e confirme no aparelho. Aguarde o visor voltar. Se o ícone continuar indicando falta de conexão ou o telefone continuar sem linha, acione a TI. Não desconecte cabos nem restaure as configurações."
+  },
+  {
+    title: "Computador sem acesso à internet",
+    keywords: ["computador sem acesso a internet", "sem internet no computador", "internet do computador"],
+    solution: "Confira se o Wi-Fi está ligado e se o computador está conectado à rede correta. Abra um site conhecido. Se outros dispositivos também estiverem sem acesso, ou se o problema continuar, acione a TI. Não altere configurações avançadas de rede."
+  },
+  {
+    title: "VPN — não conecta",
+    keywords: ["vpn", "vpn não conecta", "vpn nao conecta"],
+    solution: "Confirme se o computador está conectado à internet e tente novamente pelo aplicativo de VPN já instalado. Se aparecer uma mensagem de erro, anote o texto para informar à TI. Não compartilhe sua senha ou códigos e não altere as configurações da VPN."
+  },
+  {
+    title: "Reunião — sem som nos alto-falantes",
+    keywords: ["sem som", "alto-falantes", "som na reunião", "som na reuniao"],
+    solution: "Confira se o volume do computador está ligado e se o som não está silenciado. Nas configurações de áudio da reunião, verifique se a saída selecionada é o alto-falante ou fone que você está usando. Se continuar sem som, saia e entre novamente na reunião; se não resolver, acione a TI."
+  },
+  {
+    title: "Teclado ou mouse sem resposta",
+    keywords: ["teclado", "mouse", "sem resposta no mouse", "sem resposta no teclado"],
+    solution: "Se forem sem fio, confira se estão ligados e, quando aplicável, se a bateria pode estar descarregada. Se forem conectados por cabo ou receptor USB, confira se estão firmemente conectados. Aguarde alguns segundos e teste novamente. Se continuarem sem responder, acione a TI; não desconecte equipamentos que não reconhece."
+  }
+];
+
 let tickets = loadTickets();
 let selectedTicketId = tickets[0]?.id ?? null;
 
 const views = document.querySelectorAll(".view");
 const tabs = document.querySelectorAll(".tab");
 const ticketForm = document.querySelector("#ticketForm");
+const knowledgeSuggestions = document.querySelector("#knowledgeSuggestions");
 const ticketList = document.querySelector("#ticketList");
 const ticketDetails = document.querySelector("#ticketDetails");
 const ticketCounter = document.querySelector("#ticketCounter");
@@ -91,6 +130,15 @@ ticketForm.addEventListener("submit", (event) => {
 
 searchInput.addEventListener("input", renderTicketList);
 
+["#title", "#description"].forEach((selector) => {
+  document.querySelector(selector).addEventListener("input", renderKnowledgeSuggestions);
+});
+
+ticketForm.addEventListener("reset", () => {
+  knowledgeSuggestions.hidden = true;
+  knowledgeSuggestions.innerHTML = "";
+});
+
 clearData.addEventListener("click", () => {
   localStorage.removeItem(STORAGE_KEY);
   tickets = [...seedTickets];
@@ -126,6 +174,44 @@ function render() {
   renderTicketList();
   renderTicketDetails();
   renderHistory();
+}
+
+function renderKnowledgeSuggestions() {
+  const query = [
+    document.querySelector("#title").value,
+    document.querySelector("#description").value
+  ].join(" ").trim();
+
+  if (query.length < 3) {
+    knowledgeSuggestions.hidden = true;
+    knowledgeSuggestions.innerHTML = "";
+    return;
+  }
+
+  const normalizedQuery = normalizeText(query);
+  const matches = knowledgeBase.filter((article) =>
+    article.keywords.some((keyword) => normalizedQuery.includes(normalizeText(keyword)))
+  );
+
+  knowledgeSuggestions.hidden = false;
+  if (matches.length === 0) {
+    knowledgeSuggestions.innerHTML = `
+      <strong>Nenhuma orientação específica encontrada.</strong>
+      <p>Revise a categoria ou acione a equipe de TI para obter ajuda.</p>
+    `;
+    return;
+  }
+
+  knowledgeSuggestions.innerHTML = `
+    <strong>Sugestões da base de conhecimento</strong>
+    ${matches.map((article) => `
+      <article>
+        <h3>${escapeHtml(article.title)}</h3>
+        <p>${escapeHtml(article.solution)}</p>
+      </article>
+    `).join("")}
+    <p class="ticket-meta">Se o problema continuar, acione a equipe de TI.</p>
+  `;
 }
 
 function renderTicketList() {
@@ -314,6 +400,13 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function normalizeText(value) {
+  return String(value)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 }
 
 function showToast(message) {
