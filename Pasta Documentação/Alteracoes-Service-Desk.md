@@ -1,89 +1,97 @@
-# Alterações do Service Desk Acadêmico
+# Escola SENAI Almirante Tamandaré
 
-## Escopo e versionamento
+# Documento de correções e melhorias — Service Desk Acadêmico
 
-Foram implementados cinco itens (dois bugfixes e três melhorias) na branch `staging`, com identificadores estáveis. Cada item tem commit próprio; a persistência de alterações de analista foi incluída no `BUGFIX-001`, pois é necessária para salvar a correção de categoria.
+**Objetivo:** Registrar os problemas identificados no Service Desk Acadêmico, as melhorias solicitadas e as respectivas soluções implementadas.
 
-| Identificador | Tipo | Commit(s) | Área |
-|---|---|---|---|
-| BUGFIX-001 | bugfix | `08ba675`, `9d9bbd4` | Painel do analista / persistência |
-| BUGFIX-002 | bugfix | `25cc44d` | Painel do analista / layout |
-| FEATURE-001 | feature | `3665181` | Abertura de chamados / base de conhecimento |
-| FEATURE-002 | feature | `a09bfd9` | Painel do analista / fila |
-| FEATURE-003 | feature | `318a7e4` | Histórico |
+## Identificação dos problemas e melhorias
 
-## BUGFIX-001 — Correção da categoria do chamado
+| ID | Tipo | Problema | Área / arquivos | Solução aplicada |
+|---|---|---|---|---|
+| BUGFIX-001 | Correção | O analista não conseguia ajustar uma categoria inicialmente informada incorretamente; alterações do painel não eram salvas. | Painel do analista — `service-desk/app.js` | Permite alterar a categoria, registra a mudança no histórico e persiste as atualizações no armazenamento local. |
+| BUGFIX-002 | Correção | O status ficava visualmente distante do título do chamado. | Painel do analista — `service-desk/app.js`, `service-desk/styles.css` | Reorganiza o título e o status lado a lado, com espaçamento compacto e adaptação a telas estreitas. |
+| FEATURE-001 | Melhoria | Ao relatar um problema, o usuário não recebia uma possível orientação para resolvê-lo. | Abertura de chamado — `service-desk/index.html`, `service-desk/app.js`, `service-desk/styles.css` | Apresenta sugestões da base de conhecimento conforme o título e a descrição, encaminhando à TI quando necessário. |
+| FEATURE-002 | Melhoria | Chamados resolvidos permaneciam na fila, sem filtro por status. | Fila do analista — `service-desk/index.html`, `service-desk/app.js`, `service-desk/styles.css` | Oculta resolvidos por padrão e oferece filtro para chamados ativos, todos os status ou um status específico. |
+| FEATURE-003 | Melhoria | O histórico não tinha pesquisa nem filtro por categoria. | Histórico — `service-desk/index.html`, `service-desk/app.js`, `service-desk/styles.css` | Pesquisa os chamados por texto e restringe os resultados pela categoria escolhida. |
 
-**Descrição:** A categoria informada pelo solicitante pode não refletir o diagnóstico do analista. Um periférico com defeito, por exemplo, pode ter sido classificado inicialmente como Software.
+## Registro detalhado
 
-**Comportamento Obtido:** O analista não conseguia alterar a categoria no painel. As alterações realizadas no painel também não eram persistidas no armazenamento local.
+### BUGFIX-001 — Correção e persistência da categoria
 
-**Comportamento Esperado:** O analista deve poder corrigir a categoria após investigar o chamado. A categoria corrigida e as demais atualizações devem continuar disponíveis após recarregar a página.
+**Descrição:** A categoria indicada pelo solicitante pode não corresponder ao diagnóstico do analista. Por exemplo, um mouse com defeito pode ter sido aberto como Software.
 
-**Área afetada:** Detalhes do chamado, atualização e histórico de eventos do painel do analista.
+**Comportamento Obtido:** Não havia opção de alterar a categoria nos detalhes do chamado. Além disso, as alterações feitas pelo analista não eram gravadas no armazenamento local.
 
-**Solução do problema:** Adicionado seletor de categoria com Hardware, Software, Rede, Acesso e Outro; mudanças de categoria são registradas nos eventos. A rotina de atualização agora salva o chamado no `localStorage`.
+**Comportamento Esperado:** O analista pode classificar corretamente o chamado após investigá-lo, e a categoria e as demais atualizações permanecem após recarregar a página.
 
-**Detalhamento da versão corrigida:** `BUGFIX-001`, commits `08ba675` e `9d9bbd4`.
+**Área afetada:** Detalhes, atualização e histórico de eventos do chamado no painel do analista.
 
-## BUGFIX-002 — Espaçamento entre título e status
+**Solução do problema:** Adicionado seletor de categoria com Hardware, Software, Rede, Acesso e Outro. Alterações de categoria são registradas nos eventos, e a rotina de atualização salva os dados no `localStorage`.
 
-**Descrição:** O status do chamado aparecia afastado do título no painel do analista.
+**Detalhamento da versão corrigida:** Identificador `BUGFIX-001`; commits `08ba675` e `9d9bbd4` na branch `Pre-prod`.
 
-**Comportamento Obtido:** O cabeçalho distribuía título e status nas extremidades, deixando um espaço horizontal maior que o necessário.
+### BUGFIX-002 — Alinhamento do status com o título
 
-**Comportamento Esperado:** O status deve ficar visualmente próximo ao título, mantendo o alinhamento e adaptando-se a telas estreitas.
+**Descrição:** O status do chamado aparecia excessivamente afastado do título no painel do analista.
+
+**Comportamento Obtido:** O cabeçalho distribuía o título e o status em extremidades opostas.
+
+**Comportamento Esperado:** O status permanece próximo ao título, com espaçamento proporcional e boa adaptação a telas estreitas.
 
 **Área afetada:** Cabeçalho dos detalhes do chamado no painel do analista.
 
-**Solução do problema:** Reorganizado o título e o status em uma linha flexível com espaçamento curto e quebra de linha quando necessário.
+**Solução do problema:** Reorganizados o título e o status em uma linha flexível, com espaçamento curto e quebra de linha quando necessário.
 
-**Detalhamento da versão corrigida:** `BUGFIX-002`, commit `25cc44d`.
+**Detalhamento da versão corrigida:** Identificador `BUGFIX-002`; commit `25cc44d` na branch `Pre-prod`.
 
-## FEATURE-001 — Sugestões da base de conhecimento
+### FEATURE-001 — Recomendações da base de conhecimento
 
-**Descrição:** O usuário não recebia orientação inicial ao relatar um problema.
+**Descrição:** O usuário não recebia uma orientação inicial ao registrar um problema.
 
-**Comportamento Obtido:** A abertura do chamado apenas registrava a descrição; nenhuma solução possível era apresentada.
+**Comportamento Obtido:** O formulário apenas registrava a descrição, sem apresentar soluções possíveis.
 
-**Comportamento Esperado:** Ao digitar o título ou a descrição, o sistema sugere orientação relacionada aos artigos da base de exemplo. Quando não há correspondência, informa que não encontrou orientação específica e recomenda procurar a equipe de TI.
+**Comportamento Esperado:** Ao digitar o título ou a descrição, o sistema apresenta recomendações relacionadas à base de conhecimento. Quando não encontra correspondência, orienta o usuário a contatar a equipe de TI.
 
 **Área afetada:** Formulário de abertura de chamados.
 
-**Solução do problema:** Incluídas sugestões por palavras-chave para Wi-Fi de visitantes, impressão, telefone IP, internet, VPN, áudio de reunião e teclado/mouse. As instruções são exibidas como recomendações, sem substituir o atendimento da TI. A base original `service-desk/base-exemplo.txt` foi preservada sem alterações.
+**Solução do problema:** Adicionadas sugestões por palavras-chave para Wi-Fi de visitantes, impressão, telefone IP, internet, VPN, áudio de reunião e teclado ou mouse. As instruções são recomendações seguras e não substituem o atendimento da TI.
 
-**Detalhamento da versão corrigida:** `FEATURE-001`, commit `3665181`.
+**Detalhamento da versão corrigida:** Identificador `FEATURE-001`; commit `3665181` na branch `Pre-prod`. O arquivo `service-desk/base-exemplo.txt` foi mantido intacto.
 
-## FEATURE-002 — Filtro da fila por status
+### FEATURE-002 — Filtro de status da fila
 
-**Descrição:** Chamados resolvidos permaneciam na fila de atendimento sem opção de filtrar os demais estados.
+**Descrição:** Chamados resolvidos continuavam na fila de atendimento, misturados aos chamados pendentes.
 
-**Comportamento Obtido:** A fila exibia todos os chamados juntos, inclusive os resolvidos.
+**Comportamento Obtido:** A fila apresentava todos os chamados sem permitir filtrar pelo status.
 
-**Comportamento Esperado:** Por padrão, mostrar apenas chamados não resolvidos; permitir selecionar todos os status ou um status específico. Um chamado marcado como Resolvido deve sair da fila padrão.
+**Comportamento Esperado:** A fila mostra chamados não resolvidos por padrão e permite consultar todos os registros ou um status específico.
 
-**Área afetada:** Fila no painel do analista.
+**Área afetada:** Fila do painel do analista.
 
-**Solução do problema:** Adicionado filtro de status com as opções Não resolvidos (padrão), Todos os status, Aberto, Em atendimento, Aguardando usuário e Resolvido. A fila e a contagem respeitam a seleção.
+**Solução do problema:** Adicionado filtro com as opções Não resolvidos, Todos os status, Aberto, Em atendimento, Aguardando usuário e Resolvido. A lista e a contagem acompanham o filtro.
 
-**Detalhamento da versão corrigida:** `FEATURE-002`, commit `a09bfd9`.
+**Detalhamento da versão corrigida:** Identificador `FEATURE-002`; commit `a09bfd9` na branch `Pre-prod`.
 
-## FEATURE-003 — Pesquisa e categoria no histórico
+### FEATURE-003 — Pesquisa e categoria no histórico
 
-**Descrição:** Era difícil localizar chamados no histórico e restringir os resultados a uma categoria.
+**Descrição:** Localizar um chamado no histórico era difícil, especialmente quando se precisava consultar uma categoria específica.
 
-**Comportamento Obtido:** O histórico sempre exibia todos os chamados e não tinha controles de pesquisa ou filtro por categoria.
+**Comportamento Obtido:** O histórico sempre apresentava todos os registros, sem pesquisa ou filtro de categoria.
 
-**Comportamento Esperado:** Permitir pesquisar registros e escolher uma categoria; informar quando nenhum chamado corresponder aos filtros.
+**Comportamento Esperado:** O usuário pode pesquisar os chamados e restringir os resultados a uma categoria; quando nenhum registro corresponder, o sistema informa isso claramente.
 
 **Área afetada:** Tela Histórico.
 
-**Solução do problema:** Adicionados pesquisa por ID, título, solicitante, e-mail, status, prioridade e categoria, além de filtro por Hardware, Software, Rede, Acesso ou Outro. A pesquisa ignora diferenças entre maiúsculas e minúsculas e acentos.
+**Solução do problema:** Adicionada pesquisa por ID, título, solicitante, e-mail, status, prioridade e categoria, além de filtro por Hardware, Software, Rede, Acesso ou Outro. A pesquisa ignora diferenças de acentuação e caixa.
 
-**Detalhamento da versão corrigida:** `FEATURE-003`, commit `318a7e4`.
+**Detalhamento da versão corrigida:** Identificador `FEATURE-003`; commit `318a7e4` na branch `Pre-prod`.
+
+## Resumo final
+
+Foram concluídos dois bugfixes e três melhorias. As alterações foram separadas por identificador e registradas em commits individuais na branch `Pre-prod`. A interface agora permite classificar e acompanhar chamados com mais clareza, oferece recomendações iniciais e facilita a consulta da fila e do histórico.
 
 ## Verificação
 
 - Sintaxe JavaScript verificada com `node --check service-desk/app.js`.
-- Espaços e marcadores de conflito verificados com `git diff --check`.
-- Fluxos de interface e persistência verificados no navegador antes da entrega.
+- Alterações verificadas com `git diff --check`.
+- Fluxos de sugestões, correção e persistência de categoria, fila por status e filtros do histórico verificados no navegador.
