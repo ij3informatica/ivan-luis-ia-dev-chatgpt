@@ -181,10 +181,12 @@ function renderTicketDetails() {
     <div class="details-header">
       <div>
         <p class="eyebrow">Chamado #${ticket.id}</p>
-        <h3>${escapeHtml(ticket.title)}</h3>
+        <div class="details-title-row">
+          <h3>${escapeHtml(ticket.title)}</h3>
+          <span class="badge ${statusClass(ticket.status)}">${ticket.status}</span>
+        </div>
         <p class="ticket-meta">Aberto por ${escapeHtml(ticket.requester)} em ${formatDate(ticket.createdAt)}</p>
       </div>
-      <span class="badge ${statusClass(ticket.status)}">${ticket.status}</span>
     </div>
 
     <div class="details-grid">
